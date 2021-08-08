@@ -17,6 +17,7 @@ def w_editf(fname,text):
 #with context_manager
 class CM_openf:
     def __init__(self,fname,text):
+        assert type(fname) is str
         self.fname=fname
     def __enter__(self):
         self.tfile=open(self.fname,'w')
@@ -29,10 +30,20 @@ def cm_editf(fname, text):
     with CM_openf(fname, text) as cmf:
        cmf.write(str(text))
 
-#with CM as fabric
+#with CM decorator
 from contextlib import contextmanager
+@contextmanager #позволяет вызывать с with
+def d_editf(fname,text):
+    try:
+        fo=open(fname,'w')
+        yield fo
+    finally:
+        fo.close()
 
+def dec_editf(fname, text):
+    with d_editf(fname, text) as cmf:
+       cmf.write(str(text))
 
-cm_editf('example.txt',"dddd")
+cm_editf('example.txt',"I like pumpkin pie!")
 a=open('example.txt')
 print(a.read())
