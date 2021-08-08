@@ -1,25 +1,38 @@
 #without context managers or 'with'
 def editf(fname,text):
     assert type(fname) is str
-    openf=open(fname,'wr')
+    openf=open(fname,'w')
     try:
         openf.write(str(text))
-        openf.read()
     finally:
         openf.close()
 
-#with threads and threading lock
-from threading import Lock
+        fname.release()
 
-def tl_editf(fname,text):
-    lfile=Lock()
-    lfile.acquire()  #close thread
-    try:
-        lfile.write(str(text))
-        lfile.read()
-    finally:
-        lfile.release()
+#with 'with'
+def w_editf(fname,text):
+    with(open(fname,'w+')) as ff:
+        ff.write(str(text))
+
+#with context_manager
+class CM_openf:
+    def __init__(self,fname,text):
+        self.fname=fname
+    def __enter__(self):
+        self.tfile=open(self.fname,'w')
+        return self.tfile
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.fname:
+           self.tfile.close()
+
+def cm_editf(fname, text):
+    with CM_openf(fname, text) as cmf:
+       cmf.write(str(text))
+
+#with CM as fabric
+from contextlib import contextmanager
 
 
-
-
+cm_editf('example.txt',"dddd")
+a=open('example.txt')
+print(a.read())
